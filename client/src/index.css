@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Blinker:wght@200;400;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Blinker', sans-serif;
+    position: relative;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+/* global */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 19px;
+}
+
+/* Define custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 2px;
+    /* Set scrollbar width */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+    /* Set track background color */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+    /* Set handle color */
+}
