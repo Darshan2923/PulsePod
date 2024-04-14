@@ -1,8 +1,8 @@
 import User from "../models/User.js";
-import bycrypt from 'bcrypt'
+import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
-import dotenv from dotenv
+import dotenv from 'dotenv'
 import otpGenerator from 'otp-generator'
 
 dotenv.config();
