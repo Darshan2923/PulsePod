@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import podcastsRoutes from './routes/podcasts.js';
 import authRoutes from './routes/auth.js'
 import mongoose from 'mongoose';
+import morgan from 'morgan'
 
 const app = express();
 dotenv.config();
@@ -14,6 +15,8 @@ const corsConfig = {
     origin: true,
 };
 app.use(cors(corsConfig));
+
+app.use(morgan('dev'));
 
 const port = process.env.PORT || 8700
 
