@@ -1,26 +1,22 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer"
 import dotenv from 'dotenv';
 import otpGenerator from 'otp-generator';
+import { createError } from '../error.js'
 
 dotenv.config();
 
-const transporter=nodemailer.createTransport({
-    service:"gmail",
-    auth:{
-        user:process.env.EMAIL_USERNAME,
-        pass:process.env.EMAIL_PASSWORD,
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
     },
-    port:465,
-    host:'smtp.gmail.com'
+    port: 465,
+    host: 'smtp.gmail.com'
 });
-
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import User from 'path/to/UserModel'; // Import your User model here
-import { createError } from "../error";
 
 export const signup = async (req, res, next) => {
     try {
@@ -48,66 +44,66 @@ export const signup = async (req, res, next) => {
     }
 };
 
-export const signin=async(req,res,next)=>{
+export const signin = async (req, res, next) => {
     try {
-        const user=await User.findOne({email:req.body.email});
+        const user = await User.findOne({ email: req.body.email });
         if (!user) {
             return next(createError(201, "User not found"));
         }
         if (user.googleSignIn) {
             return next(createError(201, "Entered email is Signed Up with google account. Please SignIn with google."));
         }
-        const validPass=await bcrypt.compareSync(req.body.password,user.password)
-        if (!validPassword) {
+        const validPass = await bcrypt.compareSync(req.body.password, user.password)
+        if (!validPass) {
             return next(createError(201, "Wrong password"));
         }
 
         // create a jwt token
-        const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"7 days"});
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7 days" });
         res.status(200).json({ token, user });
     } catch (error) {
         next(error);
     }
 }
 
-export const googleAuthSignIn=async(req,res,next)=>{
+export const googleAuthSignIn = async (req, res, next) => {
     try {
-        const user=await User.findOne({email:req.body.email});
+        const user = await User.findOne({ email: req.body.email });
 
-        if(!user){
+        if (!user) {
             try {
                 const user = new User({ ...req.body, googleSignIn: true });
                 await user.save();
-                const token = jwt.sign({ id: user._id }, process.env.JWT, { expiresIn: "9999 years" });
+                const token = jwt.sign({ id: user._id }, process.env.JWT, { expiresIn: "7 days" });
                 res.status(200).json({ token, user: user });
             } catch (err) {
                 next(err);
             }
-        }else if (user.googleSignIn) {
-            const token = jwt.sign({ id: user._id }, process.env.JWT, { expiresIn: "9999 years" });
+        } else if (user.googleSignIn) {
+            const token = jwt.sign({ id: user._id }, process.env.JWT, { expiresIn: "7 days" });
             res.status(200).json({ token, user });
         } else if (user.googleSignIn === false) {
             return next(createError(201, "User already exists with this email can't do google auth"));
         }
-        
+
     } catch (error) {
         next(error);
     }
 }
 
-export const logout=(req,res)=>{
-    res.clearCookie("access_token").json({message:"Logged out successfully"});
+export const logout = (req, res) => {
+    res.clearCookie("access_token").json({ message: "Logged out successfully" });
 }
 
-export const generateOTP=async(req,res)=>{
-    req.app.locals.OTP=await otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false, digits: true, });
-    const {email}=req.query;
-    const {name}=req.query;
-    const {reason}=req.query;
-    const verifyOtp={
-        to:email,
-        subject:"Account Verification OTP",
-        html:`
+export const generateOTP = async (req, res) => {
+    req.app.locals.OTP = await otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false, digits: true, });
+    const { email } = req.query;
+    const { name } = req.query;
+    const { reason } = req.query;
+    const verifyOtp = {
+        to: email,
+        subject: "Account Verification OTP",
+        html: `
         <div style="font-family: Poppins, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
     <h1 style="font-size: 22px; font-weight: 500; color: #854CE6; text-align: center; margin-bottom: 30px;">Verify Your PULSEPOD Account</h1>
     <div style="background-color: #FFF; border: 1px solid #e5e5e5; border-radius: 5px; box-shadow: 0px 3px 6px rgba(0,0,0,0.05);">
@@ -129,10 +125,10 @@ export const generateOTP=async(req,res)=>{
         `
     };
 
-    const resetPassOtp={
-        to:email,
-        subject:'PULSEPOD reset password verification',
-        html:`
+    const resetPassOtp = {
+        to: email,
+        subject: 'PULSEPOD reset password verification',
+        html: `
         <div style="font-family: Poppins, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
                 <h1 style="font-size: 22px; font-weight: 500; color: #854CE6; text-align: center; margin-bottom: 30px;">Reset Your PULSEPOD Account Password</h1>
                 <div style="background-color: #FFF; border: 1px solid #e5e5e5; border-radius: 5px; box-shadow: 0px 3px 6px rgba(0,0,0,0.05);">
@@ -153,41 +149,41 @@ export const generateOTP=async(req,res)=>{
             </div>
         `
     };
-    if(reason==="FORGOTPASSWORD"){
-        transporter.sendMail(resetPassOtp,(err)=>{
-            if(err){
+    if (reason === "FORGOTPASSWORD") {
+        transporter.sendMail(resetPassOtp, (err) => {
+            if (err) {
                 next(err);
-            }else{
-                return res.status(200).json({message:"OTP sent"})
+            } else {
+                return res.status(200).json({ message: "OTP sent" })
             }
         })
-    }else{
-        transporter.sendMail(verifyOtp,(err)=>{
-            if(err){
+    } else {
+        transporter.sendMail(verifyOtp, (err) => {
+            if (err) {
                 next(err)
-            }else{
-                return res.status(200).json({message:"OTP sent"})
+            } else {
+                return res.status(200).json({ message: "OTP sent" })
             }
         })
     }
 }
 
-export const verifyOTP=async(req,res,next)=>{
-    const {code}=req.query;
-    if(parseInt(code)===parseInt(req.app.locals.OTP)){
-        req.app.locals.OTP=null;
-        req.app.locals.resetSession=true;
-        res.status(200).json({message:"OTP verified"});
+export const verifyOTP = async (req, res, next) => {
+    const { code } = req.query;
+    if (parseInt(code) === parseInt(req.app.locals.OTP)) {
+        req.app.locals.OTP = null;
+        req.app.locals.resetSession = true;
+        res.status(200).json({ message: "OTP verified" });
     }
-    return next(createError(201,"Wrong OTP"));
+    return next(createError(201, "Wrong OTP"));
 }
 
-export const createResetSession=async(req,res,next)=>{
-    if(req.app.locals.resetSession){
-        req.app.locals.resetSession=false;
-        return res.status(200).send({message:"Access granted"})
+export const createResetSession = async (req, res, next) => {
+    if (req.app.locals.resetSession) {
+        req.app.locals.resetSession = false;
+        return res.status(200).send({ message: "Access granted" })
     }
-    return res.status(400).send({message:"Session expired"})
+    return res.status(400).send({ message: "Session expired" })
 }
 
 export const findUserByEmail = async (req, res, next) => {
@@ -205,6 +201,29 @@ export const findUserByEmail = async (req, res, next) => {
         }
     } catch (err) {
         next(err);
+    }
+}
+
+export const resetPassword = async (req, res, next) => {
+    if (!req.app.locals.resetSession) return res.status(440).json({ message: "Session expired" })
+
+    const { email, password } = req.body;
+    try {
+        await User.findOne({ email }).then((user) => {
+            if (user) {
+                const salt = bcrypt.genSaltSync(10);
+                const hashedPassword = bcrypt.hashSync(password, salt);
+                User.updateOne({ email: email }, { $set: { password: hashedPassword } }).then(() => {
+                    req.app.locals.resetSession = false;
+                    return res.status(200).json({ message: "Password reset successfull" });
+                }).catch(err => { next(err) })
+            } else {
+                return res.status(202).json({ message: "User not found" })
+            }
+        })
+
+    } catch (error) {
+        next(error)
     }
 }
 
