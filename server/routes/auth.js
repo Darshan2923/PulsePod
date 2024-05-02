@@ -1,5 +1,5 @@
 import express from 'express';
-import { signup } from "../controllers/auth.js";
+import { createResetSession, findUserByEmail, generateOTP, googleAuthSignIn, logout, resetPassword, signin, signup, verifyOTP } from "../controllers/auth.js";
 import { localVariables } from '../middleware/auth.js';
 
 const router = express.Router();

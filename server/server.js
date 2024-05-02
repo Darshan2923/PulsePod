@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import podcastsRoutes from './routes/podcasts.js';
 import authRoutes from './routes/auth.js'
+import userRoutes from './routes/user.js'
 import mongoose from 'mongoose';
 import morgan from 'morgan'
 
@@ -24,5 +25,7 @@ mongoose.connect("mongodb://0.0.1.27010/cruddb")
 
 app.use("/api/auth", authRoutes);
 app.use("/api/podcasts", podcastsRoutes);
+app.use("/api/user", userRoutes);
+
 
 app.listen(port, () => console.log("Server running successfully"));

@@ -133,3 +133,74 @@ export const favoritPodcast = async (req, res, next) => {
     }
 }
 
+
+// add views
+export const addView = async (req, res, next) => {
+    try {
+        await Podcasts.findByIdAndUpdate(res.params.id, {
+            $inc: { views: 1 },
+        });
+        res.status(200).json("The view has been increased")
+    } catch (error) {
+        next(error)
+    }
+}
+
+// searches
+export const random = async (req, res, next) => {
+    try {
+        const podcasts = await Podcasts.aggregate([{ $sample: { size: 40 } }]).populate("creator", "name img").populate("episodes");
+        res.status(200).json(podcasts);
+    } catch (error) {
+        next(error)
+    }
+}
+
+// Most popular
+export const mostpopular = async (req, res, next) => {
+    try {
+        const podcast = await Podcasts.find().sort({ views: -1 }).populate("creator", "name img").populate("episodes");
+        res.status(200).json(podcast)
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getByTag = async (req, res, next) => {
+    const tags = req.query.tags.split(",");
+    try {
+        const podcast = await Podcasts.find({ tags: { $in: tags } }).populate("creator", "name img").populate("episodes");
+        res.status(200).json(podcast)
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getByCategory = async (req, res, next) => {
+    const query = re.ruery.q;
+    try {
+        const podcast = await Podcasts.find({
+            category: { $regex: query, $options: "i" },
+        }).populate("creator", "name img").populate("episodes");
+        res.status(200).json(podcast);
+    } catch (error) {
+        next(error)
+    }
+};
+
+export const search = async (req, res, next) => {
+    const query = req.query.q; // Extracts the search query from the request query parameters
+
+    try {
+        const podcast = await Podcasts.find({
+            name: { $regex: query, $options: "i" }, // Searches for podcasts whose name matches the query (case-insensitive)
+        }).populate("creator", "name img").populate("episodes"); // Populates the 'creator' and 'episodes' fields of the found podcasts
+
+        res.status(200).json(podcast); // Sends a JSON response with the found podcasts
+    } catch (err) {
+        next(err); // Passes any error to the Express error handling middleware
+    }
+};
+
+
+
