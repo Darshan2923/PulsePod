@@ -21,11 +21,22 @@ app.use(morgan('dev'));
 
 const port = process.env.PORT || 8700
 
-mongoose.connect("mongodb://0.0.1.27010/cruddb")
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Get the default connection
+const db = mongoose.connection;
+
+// Event listener for connection errors
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+// Event listener for successful connection
+db.once('open', () => {
+    console.log('MongoDB connected successfully!');
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/podcasts", podcastsRoutes);
 app.use("/api/user", userRoutes);
 
 
-app.listen(port, () => console.log("Server running successfully"));
+app.listen(port, () => console.log(`Server running successfully`));

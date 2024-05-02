@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const DefaultCard = ({ category }) => {
+const DefaultCard = ({ category }) => {
     return (
         <div className="w-64 h-64 rounded-lg p-4 hover:cursor-pointer hover:-translate-y-8 transition-transform duration-400 ease-in-out hover:shadow-lg hover:brightness-110 bg-gray-800 relative">
             <div className="text-white text-lg font-semibold">
@@ -16,3 +16,5 @@ export const DefaultCard = ({ category }) => {
         </div>
     );
 };
+
+export default DefaultCard;
