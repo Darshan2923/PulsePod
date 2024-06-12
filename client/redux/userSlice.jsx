@@ -29,7 +29,9 @@ export const userSlice = createSlice({
             localStorage.removeItem('token');
         },
         verified: (state, action) => {
-            if (state.currentUser) state.currentUser.verified = action.payload;
+            if (state.currentUser) {
+                state.currentUser.verified = action.payload;
+            }
         },
         displayPodcastFailure: (state) => {
             state.loading = false;
